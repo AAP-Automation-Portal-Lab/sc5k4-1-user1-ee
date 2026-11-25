@@ -1,0 +1,42 @@
+---
+version: 3
+
+images:
+  base_image:
+    name: registry.redhat.io/ansible-automation-platform/ee-minimal-rhel8:2.18
+
+dependencies:
+  python_interpreter:
+    python_path: /usr/bin/python3.12
+
+  system:
+    - git
+
+  python:
+    - paramiko
+
+  galaxy:
+    collections:
+      - name: cisco.ios
+        source: private_hub_rh_certified
+      - name: ansible.netcommon
+        source: private_hub_rh_certified
+      - name: network.acls
+        source: private_hub_validated
+      - name: community.general
+        source: private_hub_community
+      - name: https://${AAP_EE_BUILDER_GITHUB_GITHUB_LAB_ORG_AAP_AUTOMATION_PORTAL_LAB_TOKEN}@github.com/AAP-Automation-Portal-Lab/aap_lab.inventory
+        version: "main"
+        type: git
+
+additional_build_steps:
+  prepend_galaxy:
+    - ARG ANSIBLE_GALAXY_SERVER_PRIVATE_HUB_RH_CERTIFIED_TOKEN
+    - ARG ANSIBLE_GALAXY_SERVER_PRIVATE_HUB_VALIDATED_TOKEN
+    - ARG ANSIBLE_GALAXY_SERVER_PRIVATE_HUB_COMMUNITY_TOKEN
+    - ARG ANSIBLE_GALAXY_SERVER_PRIVATE_HUB_PUBLISHED_TOKEN
+  prepend_final:
+    - RUN echo "Built by network dev with Automation Portal"
+
+options:
+  package_manager_path: /usr/bin/microdnf
